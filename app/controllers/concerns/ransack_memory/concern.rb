@@ -13,7 +13,13 @@ module RansackMemory
 
       if user_signed_in?
         # search term saving
-        session["#{controller_name}_#{action_name}_#{request.xhr?}"] = params[::RansackMemory::Core.config[:param]] if params[::RansackMemory::Core.config[:param]].present?
+        if params[::RansackMemory::Core.config[:param]].present?
+          if params[::RansackMemory::Core.config[:param]].is_a? ActionController::Parameters
+            session["#{controller_name}_#{action_name}_#{request.xhr?}"] = params[::RansackMemory::Core.config[:param]].to_unsafe_h
+          else
+            session["#{controller_name}_#{action_name}_#{request.xhr?}"] = params[::RansackMemory::Core.config[:param]]
+          end
+        end
 
         # page number saving
         session["#{controller_name}_#{action_name}_#{request.xhr?}_page"] = params[:page] if params[:page].present?
@@ -38,11 +44,16 @@ module RansackMemory
         end
 
         # set page number to 1 if filter has changed
-        if (params[::RansackMemory::Core.config[:param]] && session[:last_q_params] != params[::RansackMemory::Core.config[:param]]) || (params[:cancel_filter].present? && session["#{controller_name}_#{action_name}_#{request.xhr?}_page"] != params[:page])
+        if params[::RansackMemory::Core.config[:param]] && params[::RansackMemory::Core.config[:param]].is_a? ActionController::Parameters
+          current_param = params[::RansackMemory::Core.config[:param]].to_unsafe_h
+        else
+          current_param = params[::RansackMemory::Core.config[:param]]
+        end
+        if (current_param && session[:last_q_params] != current_param) || (params[:cancel_filter].present? && session["#{controller_name}_#{action_name}_#{request.xhr?}_page"] != params[:page])
           params[:page] = nil
           session["#{controller_name}_#{action_name}_#{request.xhr?}_page"] = nil
         end
-        session[:last_q_params] = params[::RansackMemory::Core.config[:param]]
+        session[:last_q_params] = current_param
 
         # per page load
         if session["#{controller_name}_#{action_name}_#{request.xhr?}_per_page"]
