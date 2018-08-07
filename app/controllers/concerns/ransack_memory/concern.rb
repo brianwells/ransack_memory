@@ -14,7 +14,7 @@ module RansackMemory
       if user_signed_in?
         # search term saving
         if params[::RansackMemory::Core.config[:param]].present?
-          if params[::RansackMemory::Core.config[:param]].is_a? ActionController::Parameters
+          if params[::RansackMemory::Core.config[:param]].is_a?(ActionController::Parameters)
             session["#{controller_name}_#{action_name}_#{request.xhr?}"] = params[::RansackMemory::Core.config[:param]].to_unsafe_h
           else
             session["#{controller_name}_#{action_name}_#{request.xhr?}"] = params[::RansackMemory::Core.config[:param]]
@@ -44,7 +44,7 @@ module RansackMemory
         end
 
         # set page number to 1 if filter has changed
-        if params[::RansackMemory::Core.config[:param]] && params[::RansackMemory::Core.config[:param]].is_a? ActionController::Parameters
+        if params[::RansackMemory::Core.config[:param]] && params[::RansackMemory::Core.config[:param]].is_a?(ActionController::Parameters)
           current_param = params[::RansackMemory::Core.config[:param]].to_unsafe_h
         else
           current_param = params[::RansackMemory::Core.config[:param]]
